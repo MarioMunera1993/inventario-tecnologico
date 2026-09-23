@@ -1,18 +1,38 @@
+import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
-import { useState } from "react";
-import { computadoresFicticios } from "../data/computadoresFicticios";
+import toast from "react-hot-toast";
+import { obtenerComputadores } from "../services/computadoresService";
 import { ComputadorCard } from "../components/computadores/ComputadorCard";
 import { BarraBusqueda } from "../components/computadores/BarraBusqueda";
 import { Modal } from "../components/ui/Modal";
 import { ComputadorForm } from "../components/computadores/ComputadorForm";
-import toast from "react-hot-toast";
+
 
 export function Computadores() {
-  const [computadores, setComputadores] = useState(computadoresFicticios);
+  const [computadores, setComputadores] = useState([]);
+  const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState("");
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [computadorEnEdicion, setComputadorEnEdicion] = useState(null);
 
-  const textoBusqueda = busqueda.toLocaleLowerCase();
+  useEffect(() => {
+    cargarComputadores();
+  }, []);
+
+  async function cargarComputadores() {
+    try {
+      setCargando(true);
+      const datos = await obtenerComputadores();
+      setComputadores(datos);
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al conectar con el servidor.");
+    } finally {
+      setCargando(false);
+    }
+  }
+
+  const textoBusqueda = busqueda.toLowerCase();
 
   const computadoresFiltrados = computadores.filter((computador) => {
     return (
@@ -23,16 +43,41 @@ export function Computadores() {
     );
   });
 
-  function agregarComputador(datosFormulario) {
-    console.log("Datos que llegan del formulario:", datosFormulario);
-    const nuevoComputador = {
-      ...datosFormulario,
-      id: Date.now(),
-    };
+  function abrirModalCrear() {
+    setComputadorEnEdicion(null);
+    setMostrarModal(true);
+  }
 
-    setComputadores([...computadores, nuevoComputador]);
+  function abrirModalEditar(computador) {
+    setComputadorEnEdicion(computador);
+    setMostrarModal(true);
+  }
+
+  function cerrarModal() {
     setMostrarModal(false);
-    toast.success("Computador creado correctamente.");
+    setComputadorEnEdicion(null);
+  }
+
+  function guardarComputador(datosFormulario) {
+    // Por ahora solo actualiza la lista en el frontend.
+    // En la próxima etapa esto va a llamar al backend para guardar en MySQL de verdad.
+    const estaEditando = computadorEnEdicion !== null;
+
+    if (estaEditando) {
+      const listaActualizada = computadores.map((computador) =>
+        computador.id === computadorEnEdicion.id
+          ? { ...datosFormulario, id: computadorEnEdicion.id }
+          : computador
+      );
+      setComputadores(listaActualizada);
+      toast.success("Computador actualizado correctamente.");
+    } else {
+      const nuevoComputador = { ...datosFormulario, id: Date.now() };
+      setComputadores([...computadores, nuevoComputador]);
+      toast.success("Computador creado correctamente.");
+    }
+
+    cerrarModal();
   }
 
   return (
@@ -48,38 +93,49 @@ export function Computadores() {
         </div>
 
         <button
-          onClick={() => setMostrarModal(true)}
+          onClick={abrirModalCrear}
           className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
         >
           <Plus size={16} />
           Agregar computador
         </button>
       </div>
-      {/* Barra de busqueda */}
+
       <div className="mb-6">
         <BarraBusqueda valor={busqueda} onCambiar={setBusqueda} />
       </div>
 
-      {computadoresFiltrados.length === 0 ? (
+      {cargando ? (
+        <p className="text-sm text-gray-500 text-center py-12">
+          Cargando computadores...
+        </p>
+      ) : computadoresFiltrados.length === 0 ? (
         <p className="text-sm text-gray-500 text-center py-12">
           No se encontraron computadores con ese criterio de búsqueda.
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {computadoresFiltrados.map((computador) => (
-            <ComputadorCard key={computador.id} computador={computador} />
+            <ComputadorCard
+              key={computador.id}
+              computador={computador}
+              onEditar={abrirModalEditar}
+            />
           ))}
         </div>
       )}
 
       {mostrarModal && (
         <Modal
-          titulo="Agregar computador"
-          onCerrar={() => setMostrarModal(false)}
+          titulo={
+            computadorEnEdicion ? "Actualizar computador" : "Agregar computador"
+          }
+          onCerrar={cerrarModal}
         >
           <ComputadorForm
-            onGuardar={agregarComputador}
-            onCancelar={() => setMostrarModal(false)}
+            computadorInicial={computadorEnEdicion}
+            onGuardar={guardarComputador}
+            onCancelar={cerrarModal}
           />
         </Modal>
       )}
