@@ -1,0 +1,57 @@
+import {ESTADOS_COMPUTADOR } from "../constants/estadosComputador";
+import { TIPOS_EQUIPO } from "../constants/tiposEquipo";
+import { SISTEMAS_OPERATIVOS } from "../constants/sistemasOperativos"
+
+export const computadoresFicticios = [
+  {
+    id: 1,
+    placa: "1001",
+    marca: "Dell",
+    modelo: "OptiPlex 7090",
+    tipoEquipo: TIPOS_EQUIPO.ESCRITORIO,
+    sistemaOperativo: SISTEMAS_OPERATIVOS.WINDOWS_11,
+    procesador: "Intel Core i5",
+    generacion: "10ma Gen",
+    memoriaRam: [
+      { tipo: "DDR4", capacidadGb: 8 },
+      { tipo: "DDR4", capacidadGb: 8 },
+    ],
+    discosDuros: [{ tipo: "SSD", capacidadGb: 512 }],
+    macLocal: "00:1A:2B:3C:4D:5E",
+    macWifi: "00:1A:2B:3C:4D:5F",
+    estado: ESTADOS_COMPUTADOR.ACTIVO,
+    usuarioEncargado: "Juan Pérez",
+  },
+  {
+    id: 2,
+    placa: "1002",
+    marca: "HP",
+    modelo: "ProBook 440",
+    tipoEquipo: TIPOS_EQUIPO.PORTATIL,
+    sistemaOperativo: SISTEMAS_OPERATIVOS.WINDOWS_10,
+    procesador: "Intel Core i7",
+    generacion: "11va Gen",
+    memoriaRam: [{ tipo: "DDR4", capacidadGb: 16 }],
+    discosDuros: [{ tipo: "SSD", capacidadGb: 256 }],
+    macLocal: "00:2B:3C:4D:5E:6F",
+    macWifi: "00:2B:3C:4D:5E:70",
+    estado: ESTADOS_COMPUTADOR.MANTENIMIENTO,
+    usuarioEncargado: "María Gómez",
+  },
+  {
+    id: 3,
+    placa: "1003",
+    marca: "Lenovo",
+    modelo: "ThinkCentre M720",
+    tipoEquipo: TIPOS_EQUIPO.MINI_PC,
+    sistemaOperativo: SISTEMAS_OPERATIVOS.WINDOWS_8,
+    procesador: "Intel Core i3",
+    generacion: "9na Gen",
+    memoriaRam: [{ tipo: "DDR4", capacidadGb: 4 }],
+    discosDuros: [{ tipo: "HDD", capacidadGb: 1000 }],
+    macLocal: "00:3C:4D:5E:6F:70",
+    macWifi: "00:3C:4D:5E:6F:71",
+    estado: ESTADOS_COMPUTADOR.INACTIVO,
+    usuarioEncargado: "Carlos Ruiz",
+  },
+];
