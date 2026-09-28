@@ -183,15 +183,6 @@ export function ComputadorForm({ onGuardar, onCancelar }) {
           />
         </Campo>
 
-        <Campo label="Generación">
-          <input
-            type="text"
-            value={datos.generacion}
-            onChange={(e) => actualizarCampo("generacion", e.target.value)}
-            className="input"
-          />
-        </Campo>
-
         <Campo label="MAC local">
           <input
             type="text"

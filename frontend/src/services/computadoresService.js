@@ -9,3 +9,20 @@ export async function obtenerComputadores() {
 
   return respuesta.json();
 }
+
+export async function crearComputador(datos) {
+  const respuesta = await fetch(API_URL, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(datos)
+  });
+
+  const resultado = await respuesta.json();
+
+  if (!respuesta.ok) {
+    throw new Error(resultado.mensaje || "No se pudo crear el computador.");
+  }
+
+  return resultado;
+  
+}

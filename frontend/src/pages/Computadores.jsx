@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import toast from "react-hot-toast";
-import { obtenerComputadores } from "../services/computadoresService";
+import { crearComputador as crearComputadorApi, obtenerComputadores } from "../services/computadoresService";
 import { ComputadorCard } from "../components/computadores/ComputadorCard";
 import { BarraBusqueda } from "../components/computadores/BarraBusqueda";
 import { Modal } from "../components/ui/Modal";
@@ -58,12 +58,12 @@ export function Computadores() {
     setComputadorEnEdicion(null);
   }
 
-  function guardarComputador(datosFormulario) {
-    // Por ahora solo actualiza la lista en el frontend.
-    // En la próxima etapa esto va a llamar al backend para guardar en MySQL de verdad.
+  async function guardarComputador(datosFormulario) {
+
     const estaEditando = computadorEnEdicion !== null;
 
     if (estaEditando) {
+      // La edición todavía no está conectada al backend.
       const listaActualizada = computadores.map((computador) =>
         computador.id === computadorEnEdicion.id
           ? { ...datosFormulario, id: computadorEnEdicion.id }
@@ -71,13 +71,18 @@ export function Computadores() {
       );
       setComputadores(listaActualizada);
       toast.success("Computador actualizado correctamente.");
-    } else {
-      const nuevoComputador = { ...datosFormulario, id: Date.now() };
-      setComputadores([...computadores, nuevoComputador]);
-      toast.success("Computador creado correctamente.");
+      cerrarModal();
+      return;
     }
 
-    cerrarModal();
+    try {
+      const nuevoComputador = await crearComputadorApi(datosFormulario);
+      setComputadores([...computadores, nuevoComputador]);
+      toast.success("Computador creado correctamente.");
+      cerrarModal();
+    } catch (error) {
+      toast.error(error.message);
+    }
   }
 
   return (
